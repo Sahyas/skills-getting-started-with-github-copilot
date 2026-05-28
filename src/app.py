@@ -38,6 +38,48 @@ activities = {
         "schedule": "Mondays, Wednesdays, Fridays, 2:00 PM - 3:00 PM",
         "max_participants": 30,
         "participants": ["john@mergington.edu", "olivia@mergington.edu"]
+    },
+
+    "Basketball Team": {
+        "description": "Competitive basketball practices and inter-school games",
+        "schedule": "Tuesdays and Thursdays, 4:00 PM - 6:00 PM",
+        "max_participants": 14,
+        "participants": ["luke@mergington.edu", "nina@mergington.edu"]
+    },
+
+    "Soccer Team": {
+        "description": "Outdoor soccer training and weekend matches",
+        "schedule": "Mondays, Wednesdays, 4:00 PM - 6:00 PM",
+        "max_participants": 18,
+        "participants": ["carlos@mergington.edu", "maria@mergington.edu"]
+    },
+
+    "Art Club": {
+        "description": "Drawing, painting and mixed-media workshops",
+        "schedule": "Wednesdays, 3:30 PM - 5:00 PM",
+        "max_participants": 20,
+        "participants": ["zoe@mergington.edu"]
+    },
+
+    "Drama Club": {
+        "description": "Theatre rehearsals, play production and stagecraft",
+        "schedule": "Thursdays, 4:00 PM - 6:00 PM",
+        "max_participants": 25,
+        "participants": ["liam@mergington.edu"]
+    },
+
+    "Math Club": {
+        "description": "Problem solving, competitions and math circles",
+        "schedule": "Fridays, 3:30 PM - 4:30 PM",
+        "max_participants": 20,
+        "participants": ["sara@mergington.edu"]
+    },
+
+    "Science Olympiad": {
+        "description": "Prepare for science competitions and run hands-on experiments",
+        "schedule": "Tuesdays, 3:30 PM - 5:00 PM",
+        "max_participants": 15,
+        "participants": ["omar@mergington.edu"]
     }
 }
 
@@ -65,3 +107,7 @@ def signup_for_activity(activity_name: str, email: str):
     # Add student
     activity["participants"].append(email)
     return {"message": f"Signed up {email} for {activity_name}"}
+
+    # Validate student is not already signed up
+    if email in activity["participants"]:
+        raise HTTPException(status_code=400, detail="Already signed up for this activity")

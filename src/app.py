@@ -104,10 +104,50 @@ def signup_for_activity(activity_name: str, email: str):
     # Get the specific activity
     activity = activities[activity_name]
 
-    # Add student
-    activity["participants"].append(email)
-    return {"message": f"Signed up {email} for {activity_name}"}
+    # Normalize and validate email
+    normalized_email = (email or "").strip().lower()
+    if not normalized_email:
+        raise HTTPException(status_code=400, detail="Email is required")
 
-    # Validate student is not already signed up
-    if email in activity["participants"]:
+    # Prevent duplicate signups
+    participants = activity.get("participants", [])
+    normalized_participants = [p.strip().lower() for p in participants]
+    if normalized_email in normalized_participants:
         raise HTTPException(status_code=400, detail="Already signed up for this activity")
+
+    # Enforce max participants if set
+    max_p = activity.get("max_participants")
+    if isinstance(max_p, int) and len(participants) >= max_p:
+        raise HTTPException(status_code=400, detail="Activity is full")
+
+    # Add participant (store normalized email)
+    participants.append(normalized_email)
+    activity["participants"] = participants
+    return {"message": f"Signed up {normalized_email} for {activity_name}"}
+
+
+@app.delete("/activities/{activity_name}/participants")
+def remove_participant(activity_name: str, email: str):
+    """Remove a participant from an activity"""
+    if activity_name not in activities:
+        raise HTTPException(status_code=404, detail="Activity not found")
+
+    activity = activities[activity_name]
+    normalized_email = (email or "").strip().lower()
+    if not normalized_email:
+        raise HTTPException(status_code=400, detail="Email is required")
+
+    participants = activity.get("participants", [])
+    # Find participant by normalized email
+    found_index = None
+    for i, p in enumerate(participants):
+        if p.strip().lower() == normalized_email:
+            found_index = i
+            break
+
+    if found_index is None:
+        raise HTTPException(status_code=404, detail="Participant not found")
+
+    participants.pop(found_index)
+    activity["participants"] = participants
+    return {"message": f"Removed {normalized_email} from {activity_name}"}
